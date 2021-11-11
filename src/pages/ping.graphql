@@ -1,0 +1,3 @@
+query SimplePing {
+    ping
+}
