@@ -1,0 +1,6 @@
+mutation CreateNewUser($newUser: NewUser!) {
+  createUser(newUser: $newUser) {
+    id
+    username
+  }
+}

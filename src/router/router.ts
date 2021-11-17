@@ -1,4 +1,4 @@
-import { get, writable } from "svelte/store";
+import { get, writable, Subscriber, Unsubscriber, Updater } from "svelte/store";
 import type Route from "./route";
 import { routes } from "./routes";
 
@@ -24,9 +24,13 @@ export default class Router {
         window.onpopstate = syncCurrentPath;
     }
 
-    subscribe: any;
-    #set: any;
-    #update: any;
+    subscribe: (
+        this: void,
+        run: Subscriber<Route>,
+        invalidate?: (value?: Route) => void
+    ) => Unsubscriber;
+    #set: (this: void, value: Route) => void;
+    #update: (this: void, updater: Updater<Route>) => void;
 
     /**
      * Navigates to the current path in the url.

@@ -186,10 +186,35 @@ export type SimplePingQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type SimplePingQuery = { __typename?: 'Query', ping: string };
 
+export type RegisterationsAllowedQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RegisterationsAllowedQuery = { __typename?: 'Query', registerationsAllowed: boolean };
+
+export type CreateNewUserMutationVariables = Exact<{
+  newUser: NewUser;
+}>;
+
+
+export type CreateNewUserMutation = { __typename?: 'Mutation', createUser: { __typename?: 'User', id: any, username: string } };
+
 
 export const SimplePing = gql`
     query SimplePing {
   ping
+}
+    `;
+export const RegisterationsAllowed = gql`
+    query RegisterationsAllowed {
+  registerationsAllowed
+}
+    `;
+export const CreateNewUser = gql`
+    mutation CreateNewUser($newUser: NewUser!) {
+  createUser(newUser: $newUser) {
+    id
+    username
+  }
 }
     `;
 

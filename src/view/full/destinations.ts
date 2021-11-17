@@ -1,5 +1,7 @@
 import type { SvelteComponent } from "svelte";
+
 import Home16 from "carbon-icons-svelte/lib/Home16";
+import Information16 from "carbon-icons-svelte/lib/Information16";
 
 /** One destination displayed in the navigation components. */
 export class Destination {
@@ -40,4 +42,5 @@ export class DestinationGroup {
 
 export const destinations: (Destination | DestinationGroup)[] = [
     new Destination("Home", "/", Home16),
+    new Destination("Build info", "/info", Information16),
 ];

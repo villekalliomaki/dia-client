@@ -1,7 +1,9 @@
 import type Route from "./route";
 
-import Home from "../pages/Home.svelte";
-import NotFound from "../pages/NotFound.svelte";
+import Home from "../pages/home/Home.svelte";
+import NotFound from "../pages/notFound/NotFound.svelte";
+import RegisterPage from "../pages/register/RegisterPage.svelte";
+import InfoPage from "../pages/info/InfoPage.svelte";
 
 /// All the routes the app supports.
 export const routes: Route[] = [
@@ -14,5 +16,15 @@ export const routes: Route[] = [
         name: "Home",
         component: Home,
         path: /^\/$/,
+    },
+    {
+        name: "Register",
+        component: RegisterPage,
+        path: /^\/register$/,
+    },
+    {
+        name: "Info",
+        component: InfoPage,
+        path: /^\/info$/,
     },
 ];

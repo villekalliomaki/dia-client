@@ -80,8 +80,14 @@ export default {
 
 		// Replaces specific string in files during build time
 		replace({
-			'process.env.NODE_ENV': JSON.stringify('production'),
-			__buildDate__: () => JSON.stringify(new Date()),
+			preventAssignment: true,
+			__buildDate__: () => new Date(),
+			__commitHash__: () => require('child_process')
+				.execSync('git rev-parse HEAD')
+				.toString().trim(),
+			__branch__: () => require('child_process')
+				.execSync('git rev-parse --abbrev-ref HEAD')
+				.toString().trim(),
 			__endpointUrl__: "ws://localhost:8080/api/gql"
 		})
 	],
