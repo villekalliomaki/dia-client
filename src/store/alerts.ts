@@ -15,7 +15,7 @@ export type AlertOptions = {
     side?: "right" | "left";
     action?: {
         label: string;
-        callback: () => void;
+        callback: (self: Alert) => void;
     };
 };
 
@@ -37,7 +37,7 @@ export type Alert = {
 } & AlertOptions;
 
 /**
- * A store keeping track of the queued and currently displayed alerts.
+ * A store keeping track of the displayed alerts.
  */
 export default class Alerts {
     constructor() {

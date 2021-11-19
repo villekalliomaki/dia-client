@@ -31,7 +31,11 @@
         CreateNewUserMutationVariables
     >(CreateNewUser);
 
-    let newUser: NewUser;
+    let newUser: NewUser = {
+        email: "",
+        username: "",
+        password: "",
+    };
 
     async function submitNewUser() {
         try {

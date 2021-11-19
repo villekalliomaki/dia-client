@@ -6,12 +6,12 @@ A single alert, which displays on the page with an animation.
     import {
         InlineNotification,
         NotificationActionButton,
-    } from "carbon-components-svelte";
+    } from 'carbon-components-svelte';
 
-    import { onMount } from "svelte";
-    import { fly } from "svelte/transition";
+    import { onMount } from 'svelte';
+    import { fly } from 'svelte/transition';
 
-    import { Alert, alerts } from "../../store/alerts";
+    import { Alert, alerts } from '../../store/alerts';
 
     export let alert: Alert;
 
@@ -24,8 +24,8 @@ A single alert, which displays on the page with an animation.
 </script>
 
 <li
-    in:fly={{ x: alert.side == "left" ? -200 : 200, duration: 100 }}
-    out:fly={{ x: alert.side == "left" ? -200 : 200, duration: 100 }}
+    in:fly={{ x: alert.side == 'left' ? -200 : 200, duration: 100 }}
+    out:fly={{ x: alert.side == 'left' ? -200 : 200, duration: 100 }}
 >
     <InlineNotification
         style="margin-right:0px;"
@@ -40,7 +40,8 @@ A single alert, which displays on the page with an animation.
     >
         <div slot="actions">
             {#if alert.action}
-                <NotificationActionButton on:click={alert.action.callback}
+                <NotificationActionButton
+                    on:click={() => alert.action.callback(alert)}
                     >{alert.action.label}</NotificationActionButton
                 >
             {/if}

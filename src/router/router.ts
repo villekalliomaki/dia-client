@@ -1,4 +1,7 @@
 import { get, writable, Subscriber, Unsubscriber, Updater } from "svelte/store";
+import { alerts } from "../store/alerts";
+import { refreshToken } from "../store/refreshToken";
+import { user } from "../store/user";
 import type Route from "./route";
 import { routes } from "./routes";
 
@@ -45,6 +48,7 @@ export default class Router {
      * The current path is pushed to the history stack.
      * */
     #replaceWindowPath(newPath: string) {
+        console.log(`pushing ${newPath} to history`);
         window.history.pushState({}, "", window.location.origin + newPath);
     }
 
@@ -54,46 +58,79 @@ export default class Router {
     }
 
     /**
-     * Matches the path with available routes and navigates to a matching destination.
+     * Finds matches to the given path string in the preset paths.
+     * If a guard does not pass, and returns an alternative path is it
+     * matched recursively.
      *
-     * If multiple matches are present, falls back to the first one with a passing guard.
-     * @param path The destination path, without the host or origin: `/home`.
+     * @param path The destination path.
+     * @returns The matching paths, which also pass their guards.
      */
-    toPath(path: string) {
-        let pathMatches: Route[] = [];
+    #findPathMatches(path: string): [string, Route][] {
+        // Every matched route also includes the path it was matched with.
+        let matches: [string, Route][] = [];
 
         routes.forEach((route) => {
             // Test if the destination path matches.
             if (route.path.test(path)) {
                 // If the match is found test a possible guard.
                 if (route.guard != null) {
-                    if (route.guard(true, 0, [])) {
-                        throw new Error("User & login state not implemented");
+                    let guardResult = route.guard(
+                        get(user),
+                        null,
+                        get(refreshToken)
+                    );
+
+                    if (!guardResult) {
+                        // Result is null and the redirection is allowed.
+                        matches.push([path, route]);
+                    } else {
+                        // Run recursively for the alternative path.
+                        matches = matches.concat(
+                            this.#findPathMatches(guardResult)
+                        );
                     }
                 } else {
                     // No guard, allow
-                    pathMatches.push(route);
+                    matches.push([path, route]);
                 }
                 // If the guard does not pass, the route is not added.
             }
         });
 
+        return matches;
+    }
+
+    /**
+     * Matches the path with available routes and navigates to a matching destination.
+     * If multiple matches are present, falls back to the first onewith a passing guard with the highest priority.
+     *
+     * @param path The destination path, without the host or origin: `/home`.
+     */
+    toPath(path: string) {
+        let matches = this.#findPathMatches(path);
+
+        console.log(`matches for request: ${path}`);
+        console.log(matches);
+
         // If no routes are found, redirect to 404.
-        if (pathMatches.length < 1) {
+        if (matches.length < 1) {
+            alerts.error("Not found", `Path ${path} does not exist.`, {
+                closeIn: 5,
+            });
             this.toPath("/404");
             return;
         }
 
         // Sort by priority
-        pathMatches.sort((a, b) => {
-            if (a.priority == null && b.priority == null) return 0;
-            if (a.priority == null) return -1;
-            if (b.priority == null) return 1;
-            return a.priority - b.priority;
+        matches.sort((a, b) => {
+            if (a[1].priority == null && b[1].priority == null) return 0;
+            if (a[1].priority == null) return -1;
+            if (b[1].priority == null) return 1;
+            return a[1].priority - b[1].priority;
         });
 
         // Navigate to the best match
-        this.setRoute(pathMatches[0], path);
+        this.setRoute(matches[0][1], matches[0][0]);
     }
 
     /**
@@ -104,14 +141,14 @@ export default class Router {
      * The raw path is not matched against the routes Regex.
      *
      * The current window path is updated and the title is changed.
+     *
      * @param route Navigates to the given route.
-     * @param rawPath The raw path appended to the
+     * @param rawPath The raw path appended to the url.
      */
     setRoute(route: Route, rawPath: string) {
+        this.#set(route);
         this.#setTitle(route.name);
         this.#replaceWindowPath(rawPath);
-
-        this.#set(route);
     }
 
     /** Tests if the given route matches the current one. */
